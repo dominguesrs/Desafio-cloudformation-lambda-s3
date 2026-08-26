@@ -1,0 +1,35 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  Stack 1 — Bucket S3 simples com versionamento e bloqueio de acesso público.
+  Objetivo: primeiro contato com CloudFormation, sintaxe básica e criação de um único recurso.
+
+Parameters:
+  NomeDoBucket:
+    Type: String
+    Description: Nome global único do bucket (minúsculo, sem underline)
+
+Resources:
+  BucketDesafio:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Delete
+    Properties:
+      BucketName: !Ref NomeDoBucket
+      VersioningConfiguration:
+        Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+
+Outputs:
+  NomeBucketCriado:
+    Description: Nome do bucket criado
+    Value: !Ref BucketDesafio
+  ArnBucket:
+    Description: ARN do bucket
+    Value: !GetAtt BucketDesafio.Arn

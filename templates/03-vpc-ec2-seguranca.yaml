@@ -1,0 +1,116 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  Stack 3 — Rede e segurança: VPC própria, sub-rede pública, Internet Gateway,
+  tabela de rotas, Security Group restritivo e uma instância EC2.
+  Objetivo: praticar recursos de rede e boas práticas de segurança (sem abrir 0.0.0.0/0 em portas sensíveis sem necessidade).
+
+Parameters:
+  ChavePar:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: Par de chaves EC2 já existente na região
+  TipoInstancia:
+    Type: String
+    Default: t3.micro
+    AllowedValues: [t3.micro, t2.micro]
+  MeuIpParaSSH:
+    Type: String
+    Description: Seu IP público em formato CIDR (ex. 200.150.10.5/32) — nunca use 0.0.0.0/0 para SSH
+  IdAMI:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64
+    Description: >
+      Resolvido automaticamente via SSM Parameter Store para a AMI mais recente da
+      Amazon Linux 2023 na região do deploy — evita IDs de AMI fixos e desatualizados
+
+Resources:
+  VPCDesafio:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: vpc-desafio-cfn
+
+  SubRedePublica:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPCDesafio
+      CidrBlock: 10.0.1.0/24
+      MapPublicIpOnLaunch: true
+      AvailabilityZone: !Select [0, !GetAZs '']
+      Tags:
+        - Key: Name
+          Value: subnet-publica-desafio
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+
+  AnexoIGW:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPCDesafio
+      InternetGatewayId: !Ref InternetGateway
+
+  TabelaRotas:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPCDesafio
+
+  RotaPadrao:
+    Type: AWS::EC2::Route
+    DependsOn: AnexoIGW
+    Properties:
+      RouteTableId: !Ref TabelaRotas
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  AssociacaoTabelaRotas:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref SubRedePublica
+      RouteTableId: !Ref TabelaRotas
+
+  SecurityGroupWeb:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Libera HTTP para todos e SSH apenas para o IP do autor
+      VpcId: !Ref VPCDesafio
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref MeuIpParaSSH
+
+  InstanciaEC2:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref TipoInstancia
+      KeyName: !Ref ChavePar
+      ImageId: !Ref IdAMI
+      SubnetId: !Ref SubRedePublica
+      SecurityGroupIds:
+        - !Ref SecurityGroupWeb
+      UserData:
+        Fn::Base64: |
+          #!/bin/bash
+          yum update -y
+          yum install -y httpd
+          systemctl enable httpd
+          systemctl start httpd
+          echo "<h1>Desafio CloudFormation - Stack 3</h1>" > /var/www/html/index.html
+      Tags:
+        - Key: Name
+          Value: ec2-desafio-cfn
+
+Outputs:
+  IpPublicoInstancia:
+    Description: IP público da instância criada
+    Value: !GetAtt InstanciaEC2.PublicIp
+  IdVPC:
+    Value: !Ref VPCDesafio

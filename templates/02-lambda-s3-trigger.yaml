@@ -1,0 +1,80 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  Stack 2 — Automação Lambda + S3: toda vez que um objeto é enviado ao bucket,
+  uma função Lambda é disparada automaticamente (evento s3:ObjectCreated:*).
+  Objetivo: praticar IAM Roles, permissões de invocação e integração evento-driven.
+
+Parameters:
+  NomeDoBucket:
+    Type: String
+    Description: Nome global único do bucket que disparará a Lambda
+
+Resources:
+  BucketOrigem:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Delete
+    DependsOn: PermissaoInvocacaoS3
+    Properties:
+      BucketName: !Ref NomeDoBucket
+      NotificationConfiguration:
+        LambdaConfigurations:
+          - Event: 's3:ObjectCreated:*'
+            Function: !GetAtt FuncaoProcessadora.Arn
+
+  RoleExecucaoLambda:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: LeituraBucketOrigem
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                Resource: !Sub 'arn:aws:s3:::${NomeDoBucket}/*'
+
+  FuncaoProcessadora:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub '${AWS::StackName}-processador'
+      Runtime: python3.13
+      Handler: index.handler
+      Role: !GetAtt RoleExecucaoLambda.Arn
+      Timeout: 15
+      Code:
+        ZipFile: |
+          import json
+
+          def handler(event, context):
+              for record in event.get('Records', []):
+                  bucket = record['s3']['bucket']['name']
+                  key = record['s3']['object']['key']
+                  print(f"Novo objeto detectado: s3://{bucket}/{key}")
+              return {"statusCode": 200, "body": json.dumps("Processado com sucesso")}
+
+  PermissaoInvocacaoS3:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref FuncaoProcessadora
+      Action: lambda:InvokeFunction
+      Principal: s3.amazonaws.com
+      SourceAccount: !Ref AWS::AccountId
+      SourceArn: !Sub 'arn:aws:s3:::${NomeDoBucket}'
+
+Outputs:
+  NomeFuncaoLambda:
+    Description: Nome da função Lambda criada
+    Value: !Ref FuncaoProcessadora
+  NomeBucketOrigem:
+    Description: Bucket que dispara a automação
+    Value: !Ref BucketOrigem
