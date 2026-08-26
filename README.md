@@ -114,9 +114,6 @@ Todas as capturas de tela ficam em [`/images`](images), organizadas por prefixo 
 **Subnet pública com IP público automático**
 ![Stack 3 subnet](images/stack3-03-vpc-subnet.png)
 
-**Mapa de recursos da VPC**
-![Stack 3 resource map](images/stack3-04-resource-map.png)
-
 **Security Group (80 aberto, 22 restrito ao IP do autor)**
 ![Stack 3 security group](images/stack3-05-security-group.png)
 
