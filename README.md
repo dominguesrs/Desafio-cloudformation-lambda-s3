@@ -143,10 +143,6 @@ Todas as capturas de tela ficam em [`/images`](images), organizadas por prefixo 
 **Configuração de logging de acesso**
 ![Stack 4 logging config](images/stack4-06-logging-config.png)
 
-## 📝 Insights e aprendizados
-
-Anotações sobre erros encontrados, decisões de design e o que cada stack ensinou estão em [`docs/insights.md`](docs/insights.md) — preenchido durante a prática.
-
 ## 🧰 Pré-requisitos
 
 - Conta AWS com permissões para CloudFormation, S3, Lambda, IAM, EC2 e VPC
