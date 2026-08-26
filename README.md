@@ -67,43 +67,81 @@ aws cloudformation delete-stack --stack-name <nome-da-stack>
 Todas as capturas de tela ficam em [`/images`](images), organizadas por prefixo `stackN-` para relacionar cada imagem à stack correspondente.
 
 ### Stack 1 — S3 bucket simples
-| Arquivo | O que mostra |
-|---|---|
-| `stack1-01-status-create-complete.png` | Stack com status `CREATE_COMPLETE` |
-| `stack1-02-resources.png` | Aba Resources com o bucket criado |
-| `stack1-03-outputs.png` | Outputs (nome e ARN do bucket) |
-| `stack1-04-bucket-properties.png` | Versionamento e criptografia habilitados |
-| `stack1-05-block-public-access.png` | Bloqueio de acesso público ativo |
-| `stack1-06-versionamento-teste.png` | Teste real de upload gerando múltiplas versões |
+
+**Stack `CREATE_COMPLETE`**
+![Stack 1 status](images/stack1-01-status-create-complete.png)
+
+**Recursos criados**
+![Stack 1 resources](images/stack1-02-resources.png)
+
+**Outputs (nome e ARN do bucket)**
+![Stack 1 outputs](images/stack1-03-outputs.png)
+
+**Versionamento e criptografia habilitados**
+![Stack 1 propriedades do bucket](images/stack1-04-bucket-properties.png)
+
+**Bloqueio de acesso público ativo**
+![Stack 1 block public access](images/stack1-05-block-public-access.png)
+
+**Teste real de upload gerando múltiplas versões**
+![Stack 1 teste de versionamento](images/stack1-06-versionamento-teste.png)
 
 ### Stack 2 — Lambda + S3 (automação event-driven)
-| Arquivo | O que mostra |
-|---|---|
-| `stack2-01-status-create-complete.png` | Stack com status `CREATE_COMPLETE` |
-| `stack2-02-resources.png` | Aba Resources (bucket, role, função, permissão) |
-| `stack2-03-event-notification.png` | Notificação de evento configurada no bucket |
-| `stack2-04-lambda-code.png` | Código da função Lambda |
-| `stack2-05-cloudwatch-logs.png` | Log de execução após upload de teste |
+
+**Stack `CREATE_COMPLETE`**
+![Stack 2 status](images/stack2-01-status-create-complete.png)
+
+**Recursos criados (bucket, role, função, permissão)**
+![Stack 2 resources](images/stack2-02-resources.png)
+
+**Notificação de evento configurada no bucket**
+![Stack 2 event notification](images/stack2-03-event-notification.png)
+
+**Código da função Lambda**
+![Stack 2 código Lambda](images/stack2-04-lambda-code.png)
+
+**Log de execução após upload de teste**
+![Stack 2 CloudWatch logs](images/stack2-05-cloudwatch-logs.png)
 
 ### Stack 3 — VPC, rede e segurança
-| Arquivo | O que mostra |
-|---|---|
-| `stack3-01-status-outputs.png` | Stack `CREATE_COMPLETE` e Outputs (IP público, ID da VPC) |
-| `stack3-02-resources.png` | Aba Resources com os 8 recursos de rede |
-| `stack3-03-vpc-subnet.png` | Detalhes da subnet pública (`Auto-assign public IPv4: Yes`) |
-| `stack3-04-resource-map.png` | Mapa de recursos da VPC (subnet, route tables e IGW conectados) |
-| `stack3-05-security-group.png` | Regras de entrada do Security Group (80 aberto, 22 restrito ao IP do autor) |
-| `stack3-06-teste-http.png` | Página do Apache acessível via IP público da EC2 |
+
+**Stack `CREATE_COMPLETE` e Outputs (IP público, ID da VPC)**
+![Stack 3 status e outputs](images/stack3-01-status-outputs.png)
+
+**Recursos de rede criados**
+![Stack 3 resources](images/stack3-02-resources.png)
+
+**Subnet pública com IP público automático**
+![Stack 3 subnet](images/stack3-03-vpc-subnet.png)
+
+**Mapa de recursos da VPC**
+![Stack 3 resource map](images/stack3-04-resource-map.png)
+
+**Security Group (80 aberto, 22 restrito ao IP do autor)**
+![Stack 3 security group](images/stack3-05-security-group.png)
+
+**Teste HTTP funcionando via IP público da EC2**
+![Stack 3 teste HTTP](images/stack3-06-teste-http.png)
 
 ### Stack 4 — Versionamento completo + auditoria
-| Arquivo | O que mostra |
-|---|---|
-| `stack4-01-status-outputs.png` | Stack `CREATE_COMPLETE` e Outputs (buckets criados) |
-| `stack4-02-resources.png` | Aba Resources com os 6 recursos da stack |
-| `stack4-03-versoes.png` | Múltiplas versões do mesmo objeto no bucket principal |
-| `stack4-04-logs-auditoria.png` | Logs da Lambda de auditoria registrando cada versão |
-| `stack4-05-lifecycle.png` | Regra de lifecycle (transição para IA e expiração) |
-| `stack4-06-logging-config.png` | Configuração de logging de acesso apontando para o bucket de logs |
+
+**Stack `CREATE_COMPLETE` e Outputs (buckets criados)**
+![Stack 4 status e outputs](images/stack4-01-status-outputs.png)
+
+**Recursos criados**
+![Stack 4 resources](images/stack4-02-resources.png)
+
+**Múltiplas versões do mesmo objeto**
+![Stack 4 versões](images/stack4-03-versoes.png)
+
+**Logs da Lambda de auditoria por versão**
+![Stack 4 logs de auditoria](images/stack4-04-logs-auditoria.png)
+
+**Regra de lifecycle (transição para IA e expiração)**
+![Stack 4 lifecycle](images/stack4-05-lifecycle.png)
+
+**Configuração de logging de acesso**
+![Stack 4 logging config](images/stack4-06-logging-config.png)
 
 ## 📝 Insights e aprendizados
 
